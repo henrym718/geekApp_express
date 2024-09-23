@@ -2,9 +2,7 @@ name: Deploy to AWS Fargate
 
 # El pipeline se ejecuta cuando se hace push a la rama main
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   # Primer trabajo: Loguearse en ECR, construir y subir la imagen
@@ -18,8 +16,8 @@ jobs:
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1 # Realiza login en Amazon ECR
-        with:
-          region: us-east-1 # Asegúrate de usar la región correcta de AWS
+        #with:
+        #region: us-east-1 # Asegúrate de usar la región correcta de AWS
 
       - name: Build Docker image
         run: |
@@ -46,7 +44,6 @@ jobs:
   deploy:
     needs: build-and-push # Este trabajo solo se ejecuta si build-and-push se completa exitosamente
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2 # Clona el repositorio para acceder al código fuente
@@ -61,7 +58,7 @@ jobs:
 
     # Inyección de las variables de entorno necesarias para la aplicación
     env:
-      MONGO: ${{ secrets.MONGO }}
+      MONGO: ${{ secrets.MONGO_DB_URL }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       KEY_TOKEN_SECRET: ${{ secrets.KEY_TOKEN_SECRET }}
