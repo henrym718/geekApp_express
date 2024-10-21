@@ -1,0 +1,41 @@
+services:
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongo
+    volumes:
+      - ./data_mongo:/data/db
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    container_name: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongo
+
+  nodeapp:
+    image: henrymosquera/geekapp_express
+    restart: always
+    container_name: app_node
+    ports:
+      - 8000:8000
+    environment:
+      MONGO_DEV: mongodb://mongo:27017/dbtest
+      KEY_TOKEN_SECRET: 1db72517-d942-4803-af3d-bb0db82b964d
+      PORT: 8000
+    depends_on:
+      - mongo
+
+  reactaoo:
+    image: henrymosquera/geekapp_react
+    restart: always
+    container_name: app_react
+    ports:
+      - 5173:80
